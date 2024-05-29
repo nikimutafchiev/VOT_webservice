@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  db:
+    container_name: mysqlcontainer2
+    image: mysql:latest
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_USER: user2
+      MYSQL_PASSWORD: User2!User2!
+      MYSQL_ROOT_PASSWORD: Niki2105
+      MYSQL_DB: TaskManager
+
+  app1:
+    container_name: flask_app_prod
+    links:
+      - "db"
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      MYSQL_HOST: db
+
+  app2:
+    container_name: flask_app_build
+    links:
+      - "db"
+    build:
+      context: ./
+      dockerfile: Dockerfile.build
+    ports:
+      - "5001:5001"
+    depends_on:
+      - db
+    environment:
+      MYSQL_HOST: db
