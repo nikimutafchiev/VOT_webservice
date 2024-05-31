@@ -1,41 +1,71 @@
 version: "3"
 
 services:
-  db:
-    container_name: mysqlcontainer2
-    image: mysql:latest
-    ports:
-      - "3307:3306"
+  mariadb1:
+    image: mariadb:latest
+    container_name: mariadb1
     environment:
-      MYSQL_USER: user2
-      MYSQL_PASSWORD: User2!User2!
-      MYSQL_ROOT_PASSWORD: Niki2105
-      MYSQL_DB: TaskManager
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: maxscale@192.168.0.%
+      MYSQL_PASSWORD: my_s3cret
+    ports:
+      - "3307:3307"
+    networks:
+      - maxscale_network
+
+  mariadb2:
+    image: mariadb:latest
+    container_name: mariadb2
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: maxscale@192.168.0.%
+      MYSQL_PASSWORD: my_s3cret
+    ports:
+      - "3308:3307"
+    networks:
+      - maxscale_network
+
+  maxscale:
+    image: mariadb/maxscale:latest
+    container_name: maxscale
+    depends_on:
+      - mariadb1
+      - mariadb2
+    ports:
+      - "4006:4006"
+    volumes:
+      - ./maxscale.cnf:/etc/maxscale.cnf
+    networks:
+      - maxscale_network
 
   app1:
     container_name: flask_app_prod
     links:
-      - "db"
+      - "maxscale"
     build:
       context: ./
       dockerfile: Dockerfile.prod
     ports:
       - "5000:5000"
     depends_on:
-      - db
+      - maxscale
     environment:
-      MYSQL_HOST: db
+      MYSQL_HOST: maxscale
 
   app2:
     container_name: flask_app_build
     links:
-      - "db"
+      - "maxscale"
     build:
       context: ./
       dockerfile: Dockerfile.build
     ports:
       - "5001:5001"
     depends_on:
-      - db
+      - maxscale
     environment:
-      MYSQL_HOST: db
+      MYSQL_HOST: maxscale
+
+networks:
+  maxscale_network:
+    driver: bridge
