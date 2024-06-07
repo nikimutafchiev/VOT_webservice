@@ -34,7 +34,7 @@ services:
     ports:
       - "4006:4006"
     volumes:
-      - ./maxscale.cnf:/etc/maxscale.cnf
+      - ./maxscale.conf:/etc/maxscale.conf
     networks:
       - maxscale_network
 
@@ -50,7 +50,7 @@ services:
     depends_on:
       - maxscale
     environment:
-      MYSQL_HOST: maxscale
+      HOST: maxscale
 
   app2:
     container_name: flask_app_build
@@ -64,7 +64,7 @@ services:
     depends_on:
       - maxscale
     environment:
-      MYSQL_HOST: maxscale
+      HOST: maxscale
 
 networks:
   maxscale_network:
