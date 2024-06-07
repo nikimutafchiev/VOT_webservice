@@ -17,6 +17,8 @@ connection.database = "TaskManager"
 cursor.execute("CREATE TABLE Users(id int PRIMARY KEY AUTO_INCREMENT,name varchar(255),password varchar(255));")
 cursor.execute("CREATE TABLE Tasks(id int PRIMARY KEY AUTO_INCREMENT,name varchar(255),description varchar(255),due date,user_id int not null,FOREIGN KEY(user_id) REFERENCES Users(id));")
 
+
+
 @app.route("/my_tasks")
 def index():
     cursor.execute("SELECT Tasks.name as name, Tasks.description as description, Tasks.due as due FROM Tasks")
